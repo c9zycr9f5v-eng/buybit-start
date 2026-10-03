@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+/* базовый сброс, как на платформе Claude */
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{-webkit-text-size-adjust:100%}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>Bybit Старт Лайт</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Unbounded:wght@500;600&display=swap">
+<style>
+/* Layout: mobile mini-app. Sticky progress header, one step list per tab, bottom tab bar. */
+:root{
+  --bg:#EDF0F5; --surface:#FFFFFF; --ink:#10151D; --muted:#586272; --line:#D8DEE8;
+  --accent:#F2A100; --accent-ink:#1B1300; --ok:#1C8A57; --warn-bg:#FFF4D6; --warn-ink:#5A3F00;
+  --f-display:'Unbounded','Onest',system-ui,sans-serif; --f-body:'Onest',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0C1015; --surface:#151A22; --ink:#EDF0F5; --muted:#98A2B2; --line:#262D39;
+  --accent:#F7A600; --accent-ink:#1B1300; --ok:#3CC283; --warn-bg:#2A2108; --warn-ink:#F0D68A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C1015; --surface:#151A22; --ink:#EDF0F5; --muted:#98A2B2; --line:#262D39;
+  --accent:#F7A600; --accent-ink:#1B1300; --ok:#3CC283; --warn-bg:#2A2108; --warn-ink:#F0D68A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:0 96px;margin:0}
+.wrap{max-width:560px;margin-inline:auto}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding-block:14px 12px;z-index:5}
+h1{font-family:var(--f-display);font-weight:600;font-size:20px;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--muted);font-size:13px;margin:2px 0 10px}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.count{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums}
+h2{font-family:var(--f-display);font-weight:500;font-size:15px;margin:18px 0 10px}
+.note{background:var(--warn-bg);color:var(--warn-ink);border-radius:10px;padding:10px 12px;font-size:13px;margin-block:4px 12px}
+ul.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.head{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer;min-height:52px}
+.box{flex:none;width:24px;height:24px;border-radius:7px;border:2px solid var(--line);display:grid;place-items:center;color:transparent;font-size:14px;font-weight:700}
+.step.done .box{background:var(--ok);border-color:var(--ok);color:#fff}
+.step.done .t{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.t{flex:1;min-width:0;font-weight:600}
+.chev{flex:none;color:var(--muted);transition:transform .2s}
+.step.open .chev{transform:rotate(90deg)}
+.body{padding:0 14px 14px 50px;color:var(--ink)}
+.body p{margin:0 0 8px}
+.body ol,.body ul{margin:0 0 8px;padding-left:18px}
+.body li{margin-bottom:3px}
+.tip{color:var(--muted);font-size:13px}
+.btn{display:inline-block;background:var(--accent);color:var(--accent-ink);font-weight:600;text-decoration:none;border-radius:10px;padding:9px 14px;margin-top:4px}
+.mark{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--ink)}
+.tool{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:13px}
+.tool code{flex:1;min-width:0;overflow-wrap:anywhere}
+.tool button{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 10px;font:inherit;font-size:12px;cursor:pointer}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));z-index:6}
+nav .in{max-width:560px;margin-inline:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+nav button{border:0;background:none;color:var(--muted);font:inherit;font-size:12px;padding:8px 2px;border-radius:10px;cursor:pointer;min-height:44px}
+nav button[aria-selected="true"]{background:var(--bg);color:var(--ink);font-weight:600;box-shadow:inset 0 -3px 0 var(--accent)}
+.cta{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-block:4px 6px}
+.cta b{font-family:var(--f-display);font-weight:500;font-size:15px;display:block;margin-bottom:4px}
+.cta p{margin:0 0 10px;color:var(--muted);font-size:13px}
+.cta .btn{display:block;text-align:center;padding:13px 14px;font-size:16px}
+.cta .off{background:var(--line);color:var(--muted);text-align:center;border-radius:10px;padding:13px 14px}
+.cta small{display:block;margin-top:8px;color:var(--muted);font-size:11px}
+.car{margin-block:6px 14px}
+.track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:14px;background:var(--surface);border:1px solid var(--line);overscroll-behavior-x:contain}
+.track::-webkit-scrollbar{display:none}
+.slide{flex:0 0 100%;scroll-snap-align:center;margin:0;padding:14px 14px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0}
+.slide img{width:100%;max-width:250px;height:auto;border-radius:12px;border:1px solid var(--line);display:block}
+.slide figcaption{text-align:center;font-size:13px;color:var(--muted);min-width:0}
+.slide figcaption b{display:block;color:var(--ink);font-size:14px;margin-bottom:2px}
+.cbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px}
+.cbar button{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:20px;cursor:pointer}
+.cbar button:disabled{opacity:.35;cursor:default}
+.dots{display:flex;gap:6px;align-items:center}
+.dot{width:8px;height:8px;border-radius:99px;background:var(--line);transition:width .2s,background .2s}
+.dot.on{width:22px;background:var(--accent)}
+.faq{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.faq b{display:block;margin-bottom:4px}
+.faq p{margin:0;color:var(--muted);font-size:14px}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.reset{margin-top:18px;background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:13px;cursor:pointer;padding:8px 0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Bybit: старт</h1>
+  <p class="sub">Создайте аккаунт и пройдите проверку личности</p>
+  <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="pb"><i id="pf"></i></div>
+  <div class="count"><span id="ct">0 из 0 шагов</span><span id="pc">0%</span></div>
+</header>
+<main id="view"></main>
+</div>
+
+<nav><div class="in" role="tablist" id="tabs"></div></nav>
+
+<script>
+var DATA = {
+  acc: {
+    title: 'Аккаунт',
+    note: 'Bybit это криптобиржа: сайт, где можно купить и хранить криптовалюту. Вам понадобится 10–15 минут и паспорт. Доступность зависит от страны.',
+    steps: [
+      {id:'a1', t:'Откройте Bybit по ссылке', b:'<p>Нажмите кнопку выше. Откроется сайт Bybit. В адресной строке должно быть <b>bybit.com</b>.</p>'},
+      {id:'a2', t:'Создайте аккаунт', b:'<p>Введите email или номер телефона и придумайте пароль: 8 символов или больше, с цифрой и заглавной буквой.</p><p class="tip">Если в форме есть поле «Код приглашения», проверьте, что там стоит код DKXAWD.</p>'},
+      {id:'a3', t:'Введите код подтверждения', b:'<p>На почту или телефон придёт код из цифр. Введите его на сайте. Аккаунт создан.</p>'},
+      {id:'a4', t:'Включите защиту аккаунта', b:'<p>Установите приложение Google Authenticator и привяжите его: «Аккаунт и безопасность» → «Двухфакторная защита». Так никто не войдёт в аккаунт без вашего телефона.</p><p class="tip">Резервный ключ сохраните там, где его никто не увидит. Коды никому не сообщайте.</p>'}
+    ]
+  },
+  kyc: {
+    title: 'Проверка личности',
+    note: 'Проверка личности (KYC) нужна, чтобы пополнять счёт и выводить деньги. Её требуют все серьёзные биржи.',
+    steps: [
+      {id:'k1', t:'Возьмите документ', b:'<p>Подойдёт паспорт, ID-карта или водительские права. Документ должен быть действующим.</p>'},
+      {id:'k2', t:'Найдите раздел «Верификация»', b:'<p>В приложении: профиль → «Верификация». На сайте: «Аккаунт и безопасность» → «Верификация KYC». Нажмите «Пройти».</p>'},
+      {id:'k3', t:'Выберите страну и документ', b:'<p>Укажите страну, которая выдала документ, и его тип. Данные вводите точно как в документе.</p>'},
+      {id:'k4', t:'Сфотографируйте документ и лицо', b:'<p>Разрешите доступ к камере. Снимайте при хорошем свете, без бликов и фильтров. Следуйте подсказкам на экране и нажмите «Отправить».</p>'},
+      {id:'k5', t:'Дождитесь результата', b:'<p>Проверка занимает от нескольких минут до нескольких часов. Статус виден в том же разделе. Если отказали, причина написана на экране: исправьте и отправьте снова.</p>'}
+    ]
+  }
+};
+var FAQ = [
+  ['Что такое криптовалюта?','Это цифровые деньги, которые существуют только в интернете. Их цена часто сильно меняется.'],
+  ['Это рискованно?','Да. Цена может быстро упасть. Вкладывайте только те деньги, которые не страшно потерять, и не берите в долг.'],
+  ['Что такое UID?','Это номер вашего аккаунта на Bybit. Он виден в профиле в приложении.'],
+  ['Проверка личности не проходит, что делать?','Переснимите документ при хорошем свете, проверьте, что имя написано как в документе, отключите VPN. Если снова отказ, напишите в поддержку Bybit из приложения.'],
+  ['Как не попасть на мошенников?','Заходите только на bybit.com или в официальное приложение. Не вводите пароль и коды по ссылкам из чатов. Поддержка Bybit никогда не просит коды подтверждения.']
+];
+var TABS=[['acc','Аккаунт'],['kyc','Проверка'],['faq','Вопросы']];
+var REF_URL='https://www.bybit.com/invite?ref=DKXAWD&medium=referral&utm_campaign=evergreen&share_to=post', REF_CODE='DKXAWD';
+var KEY='bybit-start-v2-lite', state={}, tab='acc', open={};
+try{ state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function allSteps(){ var a=[]; TABS.forEach(function(t){ if(t[0]!=='faq') a=a.concat(DATA[t[0]].steps); }); return a; }
+function progress(){
+  var s=allSteps(), d=s.filter(function(x){return state[x.id];}).length, p=Math.round(d/s.length*100);
+  document.getElementById('pf').style.width=p+'%';
+  document.getElementById('ct').textContent=d+' из '+s.length+' шагов';
+  document.getElementById('pc').textContent=p+'%';
+  document.getElementById('pb').setAttribute('aria-valuenow',p);
+}
+var SLIDES=[
+  ['shots/s1.jpg','Главная страница','Нажмите «Пополнить счёт».'],
+  ['shots/s2.jpg','Сумма','Введите сумму и нажмите «Продолжить».'],
+  ['shots/s3.jpg','Вход в Bybit','Нажмите «Перейти на Bybit» и войдите в аккаунт.'],
+  ['shots/s4.jpg','Проверка данных','Проверьте UID и имя, поставьте галочку, нажмите «К оплате». Личные данные скрыты.'],
+  ['shots/s5.jpg','Вопрос о безопасности','Если пополняете свой счёт сами, нажмите «Нет, я действую сам».'],
+  ['shots/s6.jpg','Оплата','Нажмите «Оплатить через СБП». QR-код и данные скрыты.']
+];
+var carEl=null, slideIdx=0;
+function buildCarousel(){
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var w=document.createElement('section'); w.className='car'; w.setAttribute('aria-label','Скриншоты пошагово');
+  var tr=document.createElement('div'); tr.className='track'; tr.tabIndex=0;
+  SLIDES.forEach(function(x,i){
+    var f=document.createElement('figure'); f.className='slide';
+    var im=document.createElement('img'); im.src=x[0]; im.alt=x[1]+'. '+x[2]; im.width=560; im.height=1181; im.loading=i?'lazy':'eager';
+    var c=document.createElement('figcaption'); var b=document.createElement('b'); b.textContent=(i+1)+' из '+SLIDES.length+'. '+x[1];
+    var t=document.createElement('span'); t.textContent=x[2]; c.appendChild(b); c.appendChild(t);
+    f.appendChild(im); f.appendChild(c); tr.appendChild(f);
+  });
+  var bar=document.createElement('div'); bar.className='cbar';
+  var pv=document.createElement('button'); pv.type='button'; pv.textContent='‹'; pv.setAttribute('aria-label','Предыдущий скриншот');
+  var nx=document.createElement('button'); nx.type='button'; nx.textContent='›'; nx.setAttribute('aria-label','Следующий скриншот');
+  var dots=document.createElement('div'); dots.className='dots';
+  var ds=SLIDES.map(function(){ var d=document.createElement('span'); d.className='dot'; dots.appendChild(d); return d; });
+  bar.appendChild(pv); bar.appendChild(dots); bar.appendChild(nx);
+  function go(i){ i=Math.max(0,Math.min(SLIDES.length-1,i)); tr.scrollTo({left:i*tr.clientWidth,behavior:reduce?'auto':'smooth'}); }
+  function sync(){ var i=Math.round(tr.scrollLeft/(tr.clientWidth||1)); slideIdx=i; ds.forEach(function(d,k){ d.className='dot'+(k===i?' on':''); }); pv.disabled=i===0; nx.disabled=i===SLIDES.length-1; }
+  pv.onclick=function(){ go(slideIdx-1); }; nx.onclick=function(){ go(slideIdx+1); };
+  tr.addEventListener('scroll',sync,{passive:true});
+  tr.onkeydown=function(e){ if(e.key==='ArrowRight'){ e.preventDefault(); go(slideIdx+1); } if(e.key==='ArrowLeft'){ e.preventDefault(); go(slideIdx-1); } };
+  w.appendChild(tr); w.appendChild(bar); w._tr=tr; w._sync=sync;
+  return w;
+}
+function renderTabs(){
+  var el=document.getElementById('tabs'), names=TABS;
+  el.innerHTML=''; el.style.gridTemplateColumns='repeat('+names.length+',1fr)';
+  names.forEach(function(n){
+    var b=document.createElement('button'); b.type='button'; b.setAttribute('role','tab');
+    b.setAttribute('aria-selected', String(tab===n[0])); b.textContent=n[1];
+    b.onclick=function(){ tab=n[0]; render(); window.scrollTo(0,0); };
+    el.appendChild(b);
+  });
+}
+function renderView(){
+  var v=document.getElementById('view'); v.innerHTML='';
+  if(tab==='faq'){
+    var h=document.createElement('h2'); h.textContent='Частые вопросы'; v.appendChild(h);
+    FAQ.forEach(function(q){ var d=document.createElement('div'); d.className='faq'; d.innerHTML='<b></b><p></p>'; d.children[0].textContent=q[0]; d.children[1].textContent=q[1]; v.appendChild(d); });
+  } else {
+    var D=DATA[tab];
+    if(tab==='acc'){
+      var c=document.createElement('div'); c.className='cta';
+      c.innerHTML='<b>Создать аккаунт на Bybit</b><p>Нажмите кнопку и следуйте шагам ниже.</p>';
+      if(REF_URL){ var a=document.createElement('a'); a.className='btn'; a.href=REF_URL; a.target='_blank'; a.rel='noopener'; a.textContent='Открыть Bybit'; c.appendChild(a); }
+      else { var o=document.createElement('div'); o.className='off'; o.textContent='Ссылка скоро появится'; c.appendChild(o); }
+      if(REF_CODE){ var t=document.createElement('div'); t.className='tool'; t.innerHTML='<span>Код:</span><code></code><button type="button">Копировать</button>'; t.querySelector('code').textContent=REF_CODE; var bt=t.querySelector('button'); bt.onclick=function(){ try{ navigator.clipboard.writeText(REF_CODE).then(function(){ bt.textContent='Скопировано'; },function(){ bt.textContent='Выделите вручную'; }); }catch(e){ bt.textContent='Выделите вручную'; } }; c.appendChild(t); }
+      var sm=document.createElement('small'); sm.textContent='Это реферальная ссылка автора инструкции.'; c.appendChild(sm);
+      v.appendChild(c);
+    }
+    var h2=document.createElement('h2'); h2.textContent=D.title; v.appendChild(h2);
+    var n=document.createElement('div'); n.className='note'; n.textContent=D.note; v.appendChild(n);
+    if(tab==='dep'){
+      if(!carEl) carEl=buildCarousel();
+      v.appendChild(carEl);
+      requestAnimationFrame(function(){ carEl._tr.scrollLeft=slideIdx*carEl._tr.clientWidth; carEl._sync(); });
+    }
+    var ul=document.createElement('ul'); ul.className='steps';
+    D.steps.forEach(function(s){
+      var li=document.createElement('li'); li.className='step'+(state[s.id]?' done':'')+(open[s.id]?' open':'');
+      var hd=document.createElement('div'); hd.className='head'; hd.setAttribute('role','button'); hd.tabIndex=0;
+      hd.innerHTML='<span class="box" aria-hidden="true">✓</span><span class="t"></span><span class="chev" aria-hidden="true">›</span>';
+      hd.querySelector('.t').textContent=s.t;
+      hd.setAttribute('aria-expanded', String(!!open[s.id]));
+      var tog=function(){ open[s.id]=!open[s.id]; renderView(); };
+      hd.onclick=function(e){ if(e.target.closest('.box')){ state[s.id]=!state[s.id]; save(); renderView(); progress(); } else tog(); };
+      hd.onkeydown=function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tog(); } };
+      li.appendChild(hd);
+      if(open[s.id]){
+        var bd=document.createElement('div'); bd.className='body'; bd.innerHTML=s.b;
+        var mk=document.createElement('button'); mk.type='button'; mk.className='btn ghost';
+        mk.textContent=state[s.id]?'Снять отметку':'Отметить выполненным';
+        mk.onclick=function(){ state[s.id]=!state[s.id]; save(); renderView(); progress(); };
+        var w=document.createElement('div'); w.className='mark'; w.appendChild(mk); bd.appendChild(w);
+        li.appendChild(bd);
+      }
+      ul.appendChild(li);
+    });
+    v.appendChild(ul);
+    var rs=document.createElement('button'); rs.type='button'; rs.className='reset'; rs.textContent='Сбросить прогресс';
+    rs.onclick=function(){ if(rs.dataset.sure){ state={}; save(); renderView(); progress(); } else { rs.dataset.sure='1'; rs.textContent='Нажмите ещё раз, чтобы сбросить'; } };
+    v.appendChild(rs);
+  }
+}
+function render(){ renderTabs(); renderView(); progress(); }
+render();
+</script>
+</body>
+</html>
